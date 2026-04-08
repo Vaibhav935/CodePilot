@@ -8,12 +8,7 @@ export const createFolder = async (req, res) => {
 
   fs.mkdir(`${currentDir}/${folderName}`, { recursive: true }, (err) => {
     if (err) {
-      return customError(
-        res,
-        500,
-        {},
-        err?.message || "Error in creating folder",
-      );
+      return customError(res, 500, {}, err.message, err);
     } else {
       return success(res, {}, "Folder created successfully");
     }
@@ -27,7 +22,7 @@ export const readFolder = async (req, res) => {
 
   fs.readdir(`${currentDir}/${folderName}`, (err, files) => {
     if (err) {
-      return customError(res, 500, {}, "Error reading folder");
+      return customError(res, 500, {}, err.message, err);
     } else {
       return success(res, { files }, "Folder contents retrieved successfully");
     }
@@ -40,43 +35,25 @@ export const deleteFolder = async (req, res) => {
 
   fs.rm(`${currentDir}/${folderName}`, { recursive: true }, (err) => {
     if (err) {
-      return customError(res, 500, {}, "Error deleting folder");
+      return customError(res, 500, {}, err.message, err);
     } else {
       return success(res, {}, "Folder deleted successfully");
     }
   });
 };
 
-export const updateFolde = async (req, res) => {
+export const updateFolder = async (req, res) => {
   const { oldFolderName, newFolderName } = req.body;
   const currentDir = path.resolve() + "/assets";
 
-    fs.rename(
+  fs.rename(
     `${currentDir}/${oldFolderName}`,
     `${currentDir}/${newFolderName}`,
     (err) => {
       if (err) {
-        return customError(res, 500, {}, err.message || "Error renaming folder");
+        return customError(res, 500, {}, err.message, err);
       }
-  return success(res, {}, "Folder renamed successfully");
-
+      return success(res, {}, "Folder renamed successfully");
     },
   );
-
-};
-
-export const updateFolder = async (req, res) => {
-  try {
-    const { oldFolderName, newFolderName } = req.body;
-    const currentDir = path.resolve() + "/assets";
-
-    await fs.rename(
-      `${currentDir}/${oldFolderName}`,
-      `${currentDir}/${newFolderName}`
-    );
-
-    return success(res, {}, "Folder renamed successfully");
-  } catch (err) {
-    return customError(res, 500, {}, err.message);
-  }
 };

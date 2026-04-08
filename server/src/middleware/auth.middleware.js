@@ -1,11 +1,13 @@
 import jwt from "jsonwebtoken";
+import { customError } from "../utils/response.utils.js";
+import UserModel from "../models/user.model.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
     const { refreshToken, accessToken } = req.cookies;
 
     if (!refreshToken || !accessToken) {
-      throw new Error("Unauthorized user");
+      return customError(res, 400, {}, "Unauthorized user");
     }
 
     const decode = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -18,6 +20,7 @@ export const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log("Error in auth middleware");
+    console.log(error);
+    return customError(res, 500, {}, "Error in auth middleware", error);
   }
 };

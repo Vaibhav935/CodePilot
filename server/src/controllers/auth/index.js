@@ -4,6 +4,7 @@ import UserModel from "../../models/user.model.js";
 import {
   badRequest,
   customError,
+  internalServerError,
   success,
 } from "../../utils/response.utils.js";
 
@@ -30,6 +31,12 @@ export const register = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const newUser = await UserModel.create({
+    email,
+    username,
+    password: hashedPassword,
+  });
+
   const refreshToken = jwt.sign(
     {
       id: newUser._id,
@@ -40,19 +47,14 @@ export const register = async (req, res) => {
     },
   );
 
-  const refreshTokenHash = await bcrypt(refreshToken, 10);
+  const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
 
-  const newUser = await UserModel.create({
-    email,
-    username,
-    password: hashedPassword,
-    refreshToken: refreshTokenHash,
-  });
+  newUser.refreshToken = refreshTokenHash;
+  await newUser.save();
 
   const accessToken = jwt.sign(
     {
       id: newUser._id,
-      sessionId: session._id,
     },
     process.env.JWT_SECRET,
     {
@@ -98,13 +100,11 @@ export const login = async (req, res) => {
     return customError(res, 404, {}, "Invalid email or password.");
   }
 
-  if (!user.verified) {
-    return badRequest(res, {}, "Email not verified");
-  }
+  //   if (!user.verified) {
+  //     return badRequest(res, {}, "Email not verified");
+  //   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const isPasswordValid = bcrypt.compare(password, hashedPassword);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     return customError(res, 400, {}, "Invalid email or password");
@@ -113,6 +113,11 @@ export const login = async (req, res) => {
   const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
+
+  const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+
+  user.refreshToken = refreshTokenHash;
+  await user.save();
 
   const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "15m",
@@ -160,6 +165,7 @@ export const getMe = async (req, res) => {
 // ------------------------------------------ RefreshToken --
 export const refreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  console.log("ref token", refreshToken);
 
   if (!refreshToken) {
     return customError(res, 401, {}, "refreshToken not found.");
@@ -167,13 +173,11 @@ export const refreshToken = async (req, res) => {
 
   const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
 
-  const refreshTokenHash = await bcrypt(refreshToken, 10);
+  const user = await UserModel.findById(decoded.id);
 
-  const refreshExists = await UserModel.findOne({
-    refreshTokenHash,
-  });
+  const isTokenValid = await bcrypt.compare(refreshToken, user.refreshToken);
 
-  if (!refreshExists) {
+  if (!isTokenValid) {
     return customError(res, 401, {}, "Invalid refresh token");
   }
 
@@ -199,8 +203,8 @@ export const refreshToken = async (req, res) => {
 
   const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
 
-  refreshExists.refreshToken = newRefreshTokenHash;
-  await refreshExists.save();
+  user.refreshToken = newRefreshTokenHash;
+  await user.save();
 
   const options = {
     httpOnly: true,
@@ -217,4 +221,37 @@ export const refreshToken = async (req, res) => {
   });
 
   return success(res, {}, "Access token refreshed");
+};
+
+export const logout = async (req, res) => {
+  try {
+    const { refreshToken, accessToken } = req.cookies;
+
+    if (!refreshToken || !accessToken) {
+      return customError(res, 400, {}, "Toke missing");
+    }
+
+    const user = await UserModel.findById(req.user.id);
+
+    if (!user) {
+      return customError(res, 404, {}, "User not found");
+    }
+
+    const isValid = await bcrypt.compare(refreshToken, user.refreshToken);
+
+    if (!isValid) {
+      return customError(res, 400, {}, "Invalid token.");
+    }
+
+    user.refreshToken = "";
+    await user.save();
+
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
+
+    return success(res, {}, "Logged out successfully.");
+  } catch (error) {
+    console.log(error);
+    return internalServerError(res, {}, "Error in logout controller.", error);
+  }
 };
