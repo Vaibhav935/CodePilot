@@ -11,7 +11,7 @@ import { notFound } from "./utils/response.utils.js";
 const app = express();
 
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10md", extended: true }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(logger("tiny"));
 app.use(cookieParser());
 
