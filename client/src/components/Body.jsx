@@ -2,7 +2,7 @@ import React from "react";
 import SideBar from "./SideBar";
 import SideBarExpansion from "./SideBarExpansion";
 import CodeEditor from "./CodeEditor";
-import Terminal from "./Terminal";
+import TerminalComponent from "./Terminal";
 import AiChatSidebar from "./AiChatSidebar";
 
 const Body = () => {
@@ -12,7 +12,7 @@ const Body = () => {
       <SideBarExpansion />
       <div className="flex-1 flex flex-col">
         <CodeEditor />
-        <Terminal />
+        <TerminalComponent />
       </div>
       <AiChatSidebar />
     </div>
