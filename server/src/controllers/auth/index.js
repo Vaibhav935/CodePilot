@@ -13,21 +13,16 @@ import asyncHandler from "../../utils/asyncHandler.js";
 // ------------------------------------------ Register --
 export const register = asyncHandler(async (req, res) => {
   try {
-    console.log("req aai");
-    console.log("check 1");
     const { email, username, password } = req.body;
     console.log("body ---", req.body);
 
     if (!email || !username || !password) {
       return customError(res, 400, {}, "All fields are required");
     }
-    console.log("check 2");
-
     const isAlreadyExisted = await UserModel.findOne({
       $or: [{ email }, { username }],
     });
 
-    console.log("check 3");
     if (isAlreadyExisted) {
       return customError(
         res,
@@ -37,7 +32,6 @@ export const register = asyncHandler(async (req, res) => {
       );
     }
 
-    console.log("check 4");
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await UserModel.create({
@@ -104,19 +98,16 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  console.log("Check 1");
   if (!email || !password) {
     return customError(res, 400, {}, "All fields are required");
   }
 
-  console.log("Check 2");
   const user = await UserModel.findOne({ email });
 
   if (!user) {
     return customError(res, 404, {}, "Invalid email or password.");
   }
 
-  console.log("Check 3");
   //   if (!user.verified) {
   //     return badRequest(res, {}, "Email not verified");
   //   }
@@ -124,12 +115,10 @@ export const login = asyncHandler(async (req, res) => {
   // const isPasswordValid = await bcrypt.compare(password, user.password);
   // console.log(isPasswordValid)
 
-  // console.log("Check 4")
   // if (!isPasswordValid) {
   //   return customError(res, 400, {}, "Invalid email or password");
   // }
 
-  console.log("Check 5");
   const refreshToken = jwt.sign({ id: user._id }, config.JWT_SECRET, {
     expiresIn: "7d",
   });
