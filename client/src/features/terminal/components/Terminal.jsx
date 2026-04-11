@@ -31,8 +31,8 @@ const TerminalComponent = () => {
   }, []);
 
   return (
-    <div className=" border-t border-gray-500 h-50 flex flex-col">
-      <div className="px-1 flex justify-between border-b border-gray-500">
+    <div className=" border-t border-[#2A2B2C] h-50 flex flex-col">
+      <div className="px-1 flex justify-between border-b border-[#2A2B2C]">
         <h1>Terminal</h1>
         <div className="flex items-center justify-center cursor-pointer">
           <RxCross2 />

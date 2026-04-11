@@ -13,7 +13,7 @@ const CodeEditor = () => {
           value={currentLanguage}
           onChange={(e) => setCurrentLanguage(e.target.value)}
           name="supportedLanguages"
-          className=" border rounded-lg outline-none"
+          className=" border rounded-lg outline-none bg-[#202122]"
         >
           {Object.keys(initialFiles).map((lang) => (
             <option key={lang} value={lang}>
@@ -24,6 +24,7 @@ const CodeEditor = () => {
       </div>
       <div className="h-full flex-1">
         <Editor
+          theme="vs-dark"
           height="100%"
           defaultLanguage="javascript"
           language={currentLanguage}

@@ -12,7 +12,7 @@ const PrivateRoutes = () => {
     const checkAuth = async () => {
       try {
         const res = await getMeApi();
-        dispatch(setUser(res.data));
+        dispatch(setUser(res?.data));
       } catch (err) {
         console.log("error aa rha hai -> ", err);
         dispatch(setUser(null));

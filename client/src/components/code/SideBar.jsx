@@ -5,18 +5,22 @@ import { FaRegUserCircle } from "react-icons/fa";
 
 const SideBar = () => {
   return (
-    <div className="px-1 py-2 flex flex-col gap-5 border-r h-full border-gray-500">
-      <div className="flex items-center justify-center cursor-pointer">
-        <LuFiles size={20} />
+    <div className="px-1 py-2 flex flex-col justify-between border-r h-full border-[#2A2B2C]">
+      <div className="flex flex-col gap-5 items-center">
+        <div className="flex items-center justify-center cursor-pointer">
+          <LuFiles size={20} />
+        </div>
+        <div className="flex items-center justify-center cursor-pointer">
+          <CiSearch size={20} />
+        </div>
       </div>
-      <div className="flex items-center justify-center cursor-pointer">
-        <CiSearch size={20} />
-      </div>
-      <div className="flex items-center justify-center cursor-pointer">
-        <FaRegUserCircle size={20} />
-      </div>
-      <div className="flex items-center justify-center cursor-pointer">
-        <CiSettings size={20} />
+      <div className="flex flex-col gap-5 items-center">
+        <div className="flex items-center justify-center cursor-pointer">
+          <FaRegUserCircle size={20} />
+        </div>
+        <div className="flex items-center justify-center cursor-pointer">
+          <CiSettings size={20} />
+        </div>
       </div>
     </div>
   );

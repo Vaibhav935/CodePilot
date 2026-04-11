@@ -16,7 +16,7 @@ const Footer = () => {
   };
 
   return (
-    <div className="p-1 border-t border-gray-500">
+    <div className="p-1 border-t border-[#2A2B2C]">
       <button
         onClick={handleLogout}
         className="px-2 rounded-lg bg-red-400 cursor-pointer "
